@@ -1,0 +1,74 @@
+﻿@* tightly coupled: communicate across components using bi-directional binding, and properties *@
+
+@using HelloWorld.Classes
+
+@inherits TempConverterBase
+@* NOTE: Baseclass has [Parameter] *@
+
+<div class="row">
+    <div class="col-4">
+        Fahrenheit:
+        <input class="w-100" type="text" @bind="@fahrenheitString" pattern="^\d*$" />
+    </div>
+    <div class="col-4">
+        Celsius:
+        <input class="w-100" type="text" @bind="@celsiusString" pattern="^\d*$" />
+    </div>
+</div>
+
+@code
+{
+    decimal _fahrenheit = 32.0M;
+    decimal _celsius = 0.0M;
+
+    private string _fahrenheitString = "32.0";
+    private string fahrenheitString
+    {
+        get => _fahrenheitString;
+        set
+        {
+            _fahrenheitString = value;
+            decimal temp = 0.0M;
+            decimal.TryParse(value, out temp);
+            _fahrenheit = temp;
+            _celsius = base.ConvertFahrenheitToCelsius(_fahrenheit);
+            _celsiusString = _celsius.ToString("0.00");
+            base.FireTemperatureChangedCallback(_celsius, _fahrenheit);
+
+            // what is this voodoo?  How does the other "input" get updated?  Blazor has detected the change during code compilation, made the UI responsive.
+        }
+    }
+
+    private string _celsiusString = "0.0";
+    private string celsiusString
+    {
+        get => _celsiusString;
+        set
+        {
+            _celsiusString = value;
+            decimal temp = 0.0M;
+            decimal.TryParse(value, out temp);
+            _celsius = temp;
+            _fahrenheit = base.ConvertCelsiusToFahrenheit(_celsius);
+            _fahrenheitString = _fahrenheit.ToString("0.00");
+            base.FireTemperatureChangedCallback(_celsius, _fahrenheit);
+
+            // what is this voodoo?  How does the other "input" get updated?  Blazor has detected the change during code compilation, made the UI responsive.
+        }
+    }
+
+    @*
+    
+    As much as I want to just bind to an INT or DOUBLE or DECIMAL, and that is possible - we get issues with formatting.
+    we'll see 12.3000000000000000000000000000001 or similar.  Right now, Blazor doesn't give you formatting out of the box, except for dates!
+
+    So consider the input as text - much as you would in javascript.
+    Then you can convert your text to a numerical data type, perform your calculations, and at the point you want to go from a real number
+    back to a string, you can control the formatting using .NET's powerful string formatting.
+
+    Note the use of a property to hide the complication.  You might argue that there's too much going on, and it should be made a method.
+    I wouldn't disagree, but equally as that method would never be called other than by the paramater, have we separated concerns enough
+    to justify it?  Perhaps.
+
+    *@
+}

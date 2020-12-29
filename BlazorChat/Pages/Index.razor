@@ -1,0 +1,134 @@
+﻿@page "/"
+
+@inject IHttpContextAccessor httpContextAccessor
+@inject RoomManager roomManager
+
+<div class="row">
+    <div class="col-3">
+        <RoomsList RoomSelected="@onRoomSelected" />
+        @if (signedUp)
+        {
+            <EditForm Model="@participant" OnValidSubmit="@createRoomAndEnter">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                @if(showRoomCreationError)
+                {
+                    <p style="color:#f00;">That room name is already in use.  Try another.</p>
+                }
+                <input type="text" @bind-value="@createNewRoomItem.Name" />
+                <br/>
+                <button type="submit">Create</button>
+            </EditForm>
+        }
+        </div>
+    <div class="col-9">
+        @if(signedUp == false)
+        {
+            <p>Enter your name:</p>
+            <EditForm Model="@participant" OnValidSubmit="@join">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                @if(showParticipantCreationError)
+                {
+                    <p style="color:#f00;">That name is already in use.  Try another.</p>
+                }
+                <input type="text" @bind-value="@participant.DisplayName" />
+                <br />
+                <button type="submit">Join</button>
+            </EditForm>
+            <br />            
+        }
+        else
+        {
+            <p>Joined as: @participant.DisplayName</p>
+            
+            <RoomOccupantsList SelectedRoom="@this.selectedRoom" />
+        }
+    </div>
+    <div class="col-12 mx-3">
+        @if(signedUp && participant?.InRoom != null)
+        {
+            <RoomConversation />
+        }
+    </div>
+</div>
+
+@*
+********************************************************
+    Two problems that I can think of.
+    Firstly, when a second user "signs up", and clicked on an existing room, they don't see the conversation.
+    Secondly, when posting a message in a room, - other users don't seem to pick up on the new message.
+********************************************************
+*@
+
+@code
+{
+    private bool signedUp = false;
+    private bool showParticipantCreationError = false;
+    private bool showRoomCreationError = false;
+
+    private Participant participant => this.roomManager.Participant;
+
+    private readonly EventProperty<Room> selectedRoom = new EventProperty<Room>();
+
+    private Room createNewRoomItem = new Room();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if(firstRender)
+        {
+            if(string.IsNullOrWhiteSpace(this.participant?.DisplayName) == false)
+            {
+                this.signedUp = true;
+                this.InvokeAsync(this.StateHasChanged);
+            }
+        }
+    }
+
+    private void join()
+    {
+        if(this.roomManager.AddParticipant(this.participant))
+        {
+            this.showParticipantCreationError = false;
+            this.signedUp = true;
+        }
+        else
+        {
+            // error.
+            this.showParticipantCreationError = true;
+        }
+
+        this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private void onRoomSelected(Room selectedRoom)
+    {
+        this.selectedRoom.Value = selectedRoom;
+
+        if (this.signedUp)
+        {
+            this.roomManager.EnterAParticipantInRoom(this.participant, selectedRoom);
+
+            this.InvokeAsync(this.StateHasChanged);
+        }
+    }
+
+    private void createRoomAndEnter()
+    {
+        this.showRoomCreationError = false;
+
+        if (this.roomManager.AddRoom(this.createNewRoomItem))
+        {
+            this.onRoomSelected(this.createNewRoomItem);
+            
+            this.createNewRoomItem = new Room(); // reset, ready for a new room.
+        }
+        else
+        {
+            this.showRoomCreationError = true;
+        }
+
+        this.InvokeAsync(this.StateHasChanged);
+    }
+}

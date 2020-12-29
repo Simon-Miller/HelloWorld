@@ -1,0 +1,63 @@
+﻿@*
+    This version of the "greeter" actually shows how powerful the SignalR aspect of it all is.
+    You can load the page into multiple browsers, or even over different devices if you deploy it -
+    and the list of greetings responds when changed on all open browser windows.
+*@
+
+@if (this.enteredName == false)
+{
+    <p>What's your name?</p>
+    <EditForm Model="@this.editableUser" OnValidSubmit="@this.validGreeting">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <input type="text" @bind-value="@this.editableUser.Name" />
+
+        <button type="submit">Greet me!</button>
+    </EditForm>
+}
+else
+{
+    @foreach (var greeting in greetings)
+    {
+        <p>@greeting</p>
+    }
+}
+
+@code
+{
+    class user
+    {
+        [Required]
+        [StringLength(maximumLength: 25, MinimumLength = 2, ErrorMessage = "min 2, no more than 25 characters please.")]
+        public string Name { get; set; }
+    }
+
+    private user editableUser = new user();
+    private bool enteredName = false;
+
+    private void validGreeting()
+    {
+        greetings.Add($"Hello from {this.editableUser.Name}!");
+        this.enteredName = true;
+
+        onNewGreeting?.Invoke();
+    }
+
+    private static event Action onNewGreeting;
+
+    private static List<string> greetings = new List<string>();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            onNewGreeting += () =>
+            {
+                if (this.enteredName)
+                    this.InvokeAsync(this.StateHasChanged); // re-render list if user already entered their name.
+            };
+        }
+    }
+}
+

@@ -1,0 +1,22 @@
+﻿<p>What's your name?</p>
+<input type="text" @bind="@this.name" />
+<br />
+<input type="text" @bind-value="@this.name" @bind-value:event="oninput" /> @* change the html event binding used to respond to binding. *@
+
+@if (this.name != null)
+{
+    <p>Hello, @this.name!</p>
+}
+<div>
+    <button @onclick="@this.onClearClicked">clear</button>
+</div>
+
+@code 
+{
+    private string name = null; // bi-directionally bound with textbox
+
+    private void onClearClicked()
+    {
+        this.name = null;
+    }
+}

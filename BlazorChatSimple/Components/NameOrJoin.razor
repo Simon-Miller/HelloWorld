@@ -1,0 +1,61 @@
+﻿@inject MyState myState
+@inject ParticipantsManager manager
+
+@if (myState.Joined == false)
+{
+    <EditForm Model="@participant" OnValidSubmit="@onJoinClicked">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        @if (showNameNotUniqueError)
+        {
+            <p class="text-danger">That name is already taken.  Try another.</p>
+        }
+        <div class="input-group">
+            <input type="text" @bind="@participant.DisplayName" class="form-control" placeholder="your name" maxlength="20">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Join</button>
+            </div>
+        </div>
+    </EditForm>
+}
+else
+{
+    <h5>@participant.DisplayName</h5>
+}
+
+@code
+{
+    private readonly Participant participant = new();
+    private bool showNameNotUniqueError = false;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        this.myState.Joined.ValueChanged += onUserJoined;
+    }
+
+    private void onUserJoined(bool oldvalue, bool newValue)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void onJoinClicked()
+    {
+        // hide error, as this isn't covered by realtime validation.
+        this.showNameNotUniqueError = false;
+
+        if (manager.TryJoin(this.participant))
+        {
+            this.myState.Partipant.Value = this.participant;
+            this.myState.Joined.Value = true;            
+        }
+        else
+        {
+            this.showNameNotUniqueError = true;
+        }
+
+        // even if nothing changes, it won't hurt to call this.
+        InvokeAsync(StateHasChanged);
+    }
+}

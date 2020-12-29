@@ -1,0 +1,92 @@
+﻿@inject RoomManager roomManager
+<div class="col-12">
+    <h1 class="text-primary">@room?.Name</h1>
+</div>
+<div class="d-flex flex-column align-content-end" style="overflow-y:auto; max-height:50%;">
+    @if (allMessages != null && allMessages.Count > 0)
+    {
+        @foreach (var message in allMessages)
+        {
+            <div class="w-100 mb-3">
+                <h3>@message.MessageEntered</h3>
+                <span style="font-size:0.75rem; font-weight:bold;">@message.Participant.DisplayName</span> : <span>@message.Posted.ToShortTimeString()</span>
+            </div>
+        }
+    }
+</div>
+<div style="height:100px; border-top: 1px solid #ccc;">
+    <div class="row mr-3">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="message" @bind="@message" @bind:event="oninput" @onkeypress="@onKeyPressed" />
+            <div class="input-group-append" aria-describedby="post" @onclick="@postMessage">
+                <span class="input-group-text" id="post">Post</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private Participant participant;
+    private Room room => participant?.InRoom;
+
+    private IReadOnlyCollection<Message> allMessages;
+
+    private string message;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            this.participant = roomManager.Participant;
+
+            this.allMessages = this.room?.GetCurrentMessages;
+
+            this.participant.ChangedRoom += onParticipantChangedRoom;
+
+            if (this.room != null)
+                this.room.RoomMessagesChanged += this.onRoomGotNewMessages;
+
+            this.InvokeAsync(this.StateHasChanged); // so room name can re-render.
+        }
+    }
+
+    private void onParticipantChangedRoom(Room oldRoom, Room newRoom)
+    {
+        if (oldRoom?.Name != newRoom?.Name)
+        {
+            // stop listening for messages
+            if (oldRoom != null)
+                oldRoom.RoomMessagesChanged -= this.onRoomGotNewMessages;
+
+            this.allMessages = newRoom?.GetCurrentMessages;
+            this.InvokeAsync(this.StateHasChanged);
+
+            // listen for messags for new room.
+            if (newRoom != null)
+                newRoom.RoomMessagesChanged += this.onRoomGotNewMessages;
+        }
+    }
+
+    private void onKeyPressed(KeyboardEventArgs e)
+    {
+        if (e.CtrlKey == false && e.Code == "Enter")
+        {
+            postMessage();
+        }
+    }
+
+    private void onRoomGotNewMessages(IReadOnlyCollection<Message> messages)
+    {
+        this.allMessages = messages;
+        this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private void postMessage()
+    {
+        this.room.AddMessage(this.participant, this.message);
+        this.message = null;
+        this.InvokeAsync(this.StateHasChanged);
+    }
+}

@@ -1,0 +1,33 @@
+﻿@page "/"
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+
+<Greeter />
+
+<RoleView Role="@role">
+    <AdminContent>
+        <Greeter3 />
+    </AdminContent>
+    <UserContent>
+        <Greeter2 />
+    </UserContent>
+</RoleView>
+
+<TempConverter TemperatureChanged="@onTemperatureChanged" />
+<p>@temperature &deg;c</p>
+
+@code
+{
+    private string role = "Admin"; // Admin
+
+    private decimal temperature;
+
+    private void onTemperatureChanged(TemperatureData data)
+    {
+        this.temperature = data.Celcius; // Blazor doesn't automatically recognise the update.  (one way binding??)
+        this.StateHasChanged();
+    }
+}

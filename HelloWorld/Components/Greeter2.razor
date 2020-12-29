@@ -1,0 +1,30 @@
+﻿<p>What's your name?</p>
+
+<EditForm Model="@this.editableUser" OnValidSubmit="@this.validGreeting" >
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <input type="text" @bind-value="@this.editableUser.Name" />
+    
+    <button type="submit">Greet me!</button>
+</EditForm>
+<p>@this.greeting</p>
+
+@code 
+{
+    private user editableUser = new user();
+
+    private string greeting = null;
+
+    private void validGreeting()
+    {
+        this.greeting = $"Hello, {editableUser.Name}";
+        this.StateHasChanged(); // needed as not picked up by Blazor as a change.  Why?  Not bi-directional binding.
+    }
+
+    class user
+    {
+        [Required]
+        [StringLength(maximumLength:25,MinimumLength = 2, ErrorMessage ="min 2, no more than 25 characters please.")]
+        public string Name { get; set; }
+    }
+}

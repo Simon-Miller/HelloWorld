@@ -1,0 +1,33 @@
+﻿
+@using Classes                  @* could put this in _Imports.razor *@
+
+@inject RoleService roleService
+
+@*
+    A component demonstrating multiple render fragments, use of an input [Parameter] (input only) and dependency injection.
+*@
+
+@if(this.isAdmin)
+{
+    <div class="alert-warning">
+        @AdminContent
+    </div>
+}
+else
+{
+    @UserContent
+}
+
+@code
+{
+    [Parameter]
+    public string Role { get; set; }
+
+    [Parameter]
+    public RenderFragment AdminContent { get; set; }
+
+    [Parameter]
+    public RenderFragment UserContent { get; set; }
+
+    private bool isAdmin => this.roleService.IsAdmin(this.Role);
+}

@@ -1,0 +1,52 @@
+﻿@inject MyState myState
+@inject ParticipantsManager manager
+@inject MessagesManager messages 
+
+<div class="input-group" style="background-color:@(myState.Joined.Value? "#ddd" : "#fff");">
+    <input type="text" @bind="@Message" @bind:event="oninput" @onkeypress="@onKeyPressed" class="form-control" placeholder="message" maxlength="255" disabled="@(myState.Joined.Value == false)">
+    <div class="input-group-append">
+        <button class="btn btn-primary" disabled="@(disablePostButton || (myState.Joined.Value == false))" @onclick="@postButtonClicked">Post</button>
+    </div>
+</div>
+
+@code
+{
+    bool disablePostButton = true;
+
+    string message = null;
+    string Message
+    {
+        get => message;
+        set
+        {
+            message = value;
+            this.disablePostButton = string.IsNullOrEmpty(value);
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        myState.Joined.ValueChanged += (O, N) => InvokeAsync(StateHasChanged);
+    }
+
+    private void onKeyPressed(KeyboardEventArgs e)
+    {
+        if (e.CtrlKey == false && e.Code == "Enter")
+        {
+            postMessage();
+        }
+    }
+
+    private void postButtonClicked()
+    {
+        postMessage();
+    }
+
+    private void postMessage()
+    {
+        messages.PostMessage(Message, myState.Partipant);
+        Message = string.Empty;
+    }
+}

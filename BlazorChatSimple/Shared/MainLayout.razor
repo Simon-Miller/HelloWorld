@@ -1,0 +1,14 @@
+﻿@*
+    Wow!  Complicated!  So, what does it do??
+      LayoutComponentBase has a RenderFragment property called Body.
+      So although this is fundamentally different from a View Master, it feels like one becase @Body appears familiar.
+      The only difference being that @Body represents components (well, any HTML content to be rendered, really) and not MVC views.
+*@
+@inherits LayoutComponentBase
+
+<div class="wrap">
+    <main>
+        @Body
+    </main>
+</div>
+

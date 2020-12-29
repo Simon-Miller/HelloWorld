@@ -1,0 +1,49 @@
+﻿@inject ParticipantsManager manager
+@inject MessagesManager messages 
+
+@if (participants.Count == 0)
+{
+    <h3 class="mt-3">Be the first to join in!</h3>
+    <p>Sign up and chat now!</p>
+}
+else
+{
+    <ul>
+        @foreach (var participant in participants)
+        {
+            <li><b>@participant.DisplayName</b> (@participant.NumberOfPosts)</li>
+        }
+    </ul>
+}
+
+@code
+{
+        List<Participant> participants = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        manager.DisplayNames.ListChanged += onDisplayNamesChanged;
+        messages.AllMessages.ListChanged += x =>
+        {
+            forceDisplayNamesToUpdate(); // because number of messages for one or more participants changed.
+        };
+
+        forceDisplayNamesToUpdate(); // initial page load.
+    }
+
+    private void forceDisplayNamesToUpdate()
+    {
+        onDisplayNamesChanged(manager.DisplayNames);
+    }
+
+    private void onDisplayNamesChanged(IReadOnlyCollection<Participant> allParticipants)
+    {
+        this.participants = allParticipants.OrderBy(p => p.DisplayName).ToList();
+
+        // depending on how the code executes, Blazor won't always know what triggers an update to the UI.
+        // sometimes we need to force it to happen, like this:
+        InvokeAsync(StateHasChanged);
+    }
+}

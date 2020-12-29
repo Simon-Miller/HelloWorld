@@ -1,0 +1,59 @@
+﻿@implements  IDisposable
+
+@inject RoomManager roomManager
+
+@if(SelectedRoom.Value != null)
+{
+    @if(roomOccupants != null)
+    {
+    <ul>
+        @foreach (var occupant in roomOccupants)
+        {
+            <li>@occupant.DisplayName</li>
+        }
+    </ul>
+    }
+}
+
+@code
+{
+    private IReadOnlyCollection<Participant> roomOccupants { get; set; }
+
+    [Parameter]
+    public EventProperty<Room> SelectedRoom { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if(firstRender)
+        {
+            this.SelectedRoom.ValueChanged += onSelectedRoomChanged;
+
+            RoomManager.RoomsOccupantsChanged += this.onRoomOccupantsCountChanged;
+
+            if (this.SelectedRoom?.Value != null)
+                this.onRoomOccupantsCountChanged(this.SelectedRoom.Value);
+        }
+    }
+
+    public void Dispose()
+    {
+        this.SelectedRoom.ValueChanged -= onSelectedRoomChanged;
+        RoomManager.RoomsOccupantsChanged -= this.onRoomOccupantsCountChanged;
+    }
+
+    private void onSelectedRoomChanged(Room oldRoom, Room newRoom)
+    {
+        this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private void onRoomOccupantsCountChanged(Room roomThatChanged)
+    {
+        if(roomThatChanged.Name == this.SelectedRoom?.Value.Name)
+        {
+            this.roomOccupants = this.roomManager.GetOccupantsOfRoom(this.SelectedRoom.Value);
+
+            this.InvokeAsync(this.StateHasChanged);
+        }
+    }
+}

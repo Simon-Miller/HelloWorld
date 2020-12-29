@@ -1,0 +1,29 @@
+﻿@page "/"
+
+<aside class="col-3">
+    <div style="position:absolute; max-height:6rem; overflow-y:auto;">
+        <NameOrJoin />
+    </div>
+    <div style="margin-top:3rem; max-height:calc(100% - 3rem); overflow-y:auto;">
+        <Participants />
+    </div>
+</aside>
+
+<article class="col-9">
+    <div class="d-flex flex-column h-100">
+        <div style="height:calc(100% - 3rem); overflow-y:auto; background-color: #eee;">
+            <ChatMessages />
+        </div>
+
+        <div style="height:3rem;">
+            <ParticipantMessageSender />
+        </div>
+    </div>
+</article>
+
+@* can try this from Package Manager Console :  dotnet watch -p BlazorChatSimple run debug
+    Not at the performance I'd like to see, yet. (10 seconds?) 
+    Many code changes (HTML / CSS) can be done in real-time with browser dev tooling.  Just copy your experimental lines back to your source code.
+
+    See: https://www.livesharp.net/Blazor/ for your 1 second refresh times! Sadly, it's gonna cost ya.
+*@

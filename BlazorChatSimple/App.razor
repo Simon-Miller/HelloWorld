@@ -1,0 +1,17 @@
+@* This component renders in an MVC Razor page (_Host.cshtml) - but notice we have no html markup?
+    The purpose of the "Router" is to examine the HTTP Request path, and match a route to a "Page" component.
+    By that, we refer to components that have a @Page attribute identifying their path to be associated with.
+    This component uses DI to get an instance of that component, and renders it out in the "Found" ->
+    But note that the RouteView has a Default Layout, which acts the same as a View Master in MVC.   
+    In this case, "MainLayout" is the component you'll want to see next. (in Shared folder)
+*@
+<Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p>Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>

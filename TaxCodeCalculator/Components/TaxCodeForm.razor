@@ -1,0 +1,31 @@
+﻿
+<div class="col-6 offset-3">
+    <EditForm Model="@Model" OnValidSubmit="ValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label for="code">Tax Code:</label>
+        <input id="code" type="text" class="form-control" required="@true" autofocus="@true" @bind="@Model.Code" />
+
+        <label for="income" class="mt-3">Income:</label>
+        <input id="income" type="number" class="form-control" required="@true" @bind-value="@Model.Income" />
+
+        <button class="mt-4 w-100 btn btn-primary" type="submit">Calculate</button>
+
+    </EditForm>
+</div>
+
+
+@code
+{
+    [Parameter]
+    public TaxCodeViewModel Model { get; set; }
+
+    [Parameter]
+    public Action OnValidSubmitCallback { get; set; }
+
+    private void ValidSubmit()
+    {
+        OnValidSubmitCallback?.Invoke();
+    }
+}

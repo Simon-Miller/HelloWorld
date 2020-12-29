@@ -1,0 +1,36 @@
+﻿@inject RoomManager roomManager
+
+<select class="custom-select" multiple>
+    @foreach (var room in RoomManager.Rooms.Keys)
+    {
+        var theRoom = RoomManager.Rooms[room];
+
+        <option @onclick="@(()=> onRoomClicked(theRoom))" >@theRoom.Name ( @theRoom.OccupantsCount.Value )</option>
+    }
+</select>
+
+@code
+{
+    [Parameter]
+    public Action<Room> RoomSelected { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            RoomManager.Rooms.Changed += onRoomsChanged;
+            RoomManager.RoomsOccupantsChanged += room => onRoomsChanged();
+        }
+    }
+
+    private void onRoomsChanged()
+    {
+        this.InvokeAsync(this.StateHasChanged);
+    }
+
+    private void onRoomClicked(Room selected)
+    {
+        this.RoomSelected?.Invoke(selected);
+    }
+}

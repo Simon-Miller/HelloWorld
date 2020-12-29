@@ -1,0 +1,50 @@
+﻿<div class="col-6 offset-3">
+    <EditForm Model="@Model" OnValidSubmit="@onValidSubmit" >
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label for="code">Tax Code:</label>
+        <input id="code" type="text" class="form-control" required autofocus @bind="@Model.Code" @bind:event="oninput" />
+
+        <label for="income" class="mt-3">Income:</label>
+        <input id="income" type="number" class="form-control" required step="0.01" @bind="@Model.Income" @bind:event="oninput" />
+        <p>formatted: @Model.Income.ToString("N2")</p>
+
+        <button class="mt-4 w-100 btn btn-primary" type="submit">Calculate</button>
+
+    </EditForm>
+</div>
+
+
+@code
+{
+    [Parameter]
+    public TaxCodeViewModel Model { get; set; }
+
+    [Parameter]
+    public Action OnValidSubmitCallback { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if(firstRender)
+        {
+            this.Model.CodeChanged += this.onCodeChanged;
+            this.Model.IncomeChanged += this.onIncomeChanged;
+        }
+    }
+
+    private void onCodeChanged(string oldValue, string newValue)
+    {
+    }
+
+    private void onIncomeChanged(double oldValue, double newValue)
+    {
+    }
+
+    private void onValidSubmit()
+    {
+        OnValidSubmitCallback?.Invoke();
+    }
+
+}

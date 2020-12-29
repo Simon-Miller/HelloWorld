@@ -1,0 +1,39 @@
+﻿@page "/"
+
+@inject TaxedIncomeCalculator calculator
+
+<div class="container">
+    <div class="row">
+        <TaxCodeForm2 Model="@model" OnValidSubmitCallback="@onCalculateClickedAndValid" />
+    </div>
+
+    @if (haveResult)
+    {
+        <div class="jumbotron mt-4">
+            <h1 class="text-center">Wage: @calculatedWage.ToString("N2")</h1>
+            <h1 class="text-center">Tax: @calculatedTax.ToString("N2")</h1>
+        </div>
+    }
+</div>
+
+@code
+{
+    private TaxCodeViewModel model = new TaxCodeViewModel() { };
+    private bool haveResult = false;
+
+    private double calculatedWage = 0;
+    private double calculatedTax = 0;
+
+    private void onCalculateClickedAndValid()
+    {
+        var info = this.calculator.IncomeAfterTax(model.Code, model.Income);
+        this.calculatedWage = info.wage;
+        this.calculatedTax = info.tax;
+
+
+        this.haveResult = true;
+
+        // blazor failed to detect changes, so we force a refresh ourselves.
+        this.StateHasChanged();
+    }
+}
