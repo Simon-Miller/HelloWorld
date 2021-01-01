@@ -24,7 +24,7 @@ else
     {
         base.OnInitialized();
 
-        manager.DisplayNames.ListChanged += onDisplayNamesChanged;
+        manager.AllParticipants.ListChanged += onDisplayNamesChanged;
         messages.AllMessages.ListChanged += x =>
         {
             forceDisplayNamesToUpdate(); // because number of messages for one or more participants changed.
@@ -35,7 +35,7 @@ else
 
     private void forceDisplayNamesToUpdate()
     {
-        onDisplayNamesChanged(manager.DisplayNames);
+        onDisplayNamesChanged(manager.AllParticipants);
     }
 
     private void onDisplayNamesChanged(IReadOnlyCollection<Participant> allParticipants)

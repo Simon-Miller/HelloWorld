@@ -5,7 +5,7 @@ namespace BlazorChatSimple.Classes
 {
     public class ParticipantsManager
     {
-        public readonly EventList<Participant> DisplayNames = new();
+        public readonly EventList<Participant> AllParticipants = new();
 
         /// <summary>
         /// tries to add your <paramref name="displayName"/> to the collection, ensuring it will be unique.
@@ -17,14 +17,14 @@ namespace BlazorChatSimple.Classes
 
             var comparisonName = trimmedName.ToLower();
 
-            if (DisplayNames.Any(x => x.DisplayName.ToLower() == comparisonName))
+            if (AllParticipants.Any(x => x.DisplayName.ToLower() == comparisonName))
             {
                 return false;
             }
             else
             {
                 potentialParticipant.DisplayName = trimmedName;
-                DisplayNames.Add(potentialParticipant);
+                AllParticipants.Add(potentialParticipant);
 
                 return true;
             }
