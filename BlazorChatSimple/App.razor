@@ -5,7 +5,7 @@
     But note that the RouteView has a Default Layout, which acts the same as a View Master in MVC.   
     In this case, "MainLayout" is the component you'll want to see next. (in Shared folder)
 *@
-<Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+<Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
     </Found>

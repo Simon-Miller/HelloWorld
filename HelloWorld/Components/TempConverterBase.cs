@@ -41,9 +41,9 @@ namespace HelloWorld.Components
     /// <summary>
     /// C#9 feature.  Better than a Tuple in this case.  A little more formal.
     /// </summary>
-    public record TemperatureData
+    public class TemperatureData
     {
-        public decimal Celcius { get; init; }
-        public decimal Fahrenheit { get; init; }
+        public decimal Celcius { get; set; }
+        public decimal Fahrenheit { get; set; }
     }
 }

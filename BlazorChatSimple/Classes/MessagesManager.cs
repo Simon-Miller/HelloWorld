@@ -4,7 +4,7 @@ namespace BlazorChatSimple.Classes
 {
     public class MessagesManager
     {
-        public readonly EventList<Message> AllMessages = new();
+        public readonly EventList<Message> AllMessages = new EventList<Message>();
 
         public void PostMessage(string message, Participant poster)
         {

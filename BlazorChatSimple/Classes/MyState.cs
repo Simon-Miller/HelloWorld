@@ -7,7 +7,7 @@ namespace BlazorChatSimple.Classes
         /// <summary>
         /// changes when user joins the conversation by providing a DisplayName
         /// </summary>
-        public EventProperty<bool> Joined = new();
-        public EventProperty<Participant> Partipant = new();
+        public EventProperty<bool> Joined = new EventProperty<bool>();
+        public EventProperty<Participant> Partipant = new EventProperty<Participant>();
     }
 }

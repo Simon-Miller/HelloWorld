@@ -5,7 +5,7 @@ namespace BlazorChatSimple.Classes
 {
     public class ParticipantsManager
     {
-        public readonly EventList<Participant> AllParticipants = new();
+        public readonly EventList<Participant> AllParticipants = new EventList<Participant>();
 
         /// <summary>
         /// tries to add your <paramref name="displayName"/> to the collection, ensuring it will be unique.
