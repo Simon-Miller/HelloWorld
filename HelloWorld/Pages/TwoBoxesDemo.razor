@@ -1,0 +1,97 @@
+﻿@page "/two-boxes-demo"
+
+@*
+    Double your processing power with Blazor! (server side + client side)
+    See that your executing code has two environments!
+    You can choose to run javascript code, or you can do a lot more from the server side, and push changes down to the client side.
+    Yeah, PUSH = SignalR = two way.  Request / response mechanism can be started from either side of the wire.
+
+
+*@
+
+@implements IDisposable 
+
+<div style="width:100%; height: 100px;">    
+    @foreach(var box in boxes)
+    {
+        <div style="position: absolute; width:100px; height:100px; border: solid 1px #@(box.BorderColour); background-color: #@(box.BackgroundColour); top:@(box.Y)px; left: @(box.X)px;" />
+    }
+</div>
+
+@code
+{
+    const int NUM_BOXES = 20;
+
+    class box
+    {
+        public int X;
+        public int Y;
+        public string BorderColour;
+        public string BackgroundColour;
+
+        public int Xinc;
+        public bool IsMovingRight;
+    }
+
+    box[] boxes = new box[NUM_BOXES];
+
+    System.Timers.Timer updateTicker = new System.Timers.Timer(33); // 30 x per second.
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        int increments = 0x80 / NUM_BOXES;
+
+        var rnd = new Random();
+
+        for (int i=0; i< NUM_BOXES; i++)
+        {
+            var backgroundRed = 0x80 + (i * increments);
+            var backgroundGreen = 0x00;
+            var backgroundBlue = 0x80 + (i * increments);
+
+            var backgroundColour = $"{backgroundRed.ToString("X2")}{backgroundGreen.ToString("X2")}{backgroundBlue.ToString("X2")}";
+
+            var borderRed = 0x50 + (i * increments);
+            var borderGreen = 0x00;
+            var borderBlue = 0x80 + (i * increments);
+
+            var borderColour = $"{borderRed.ToString("X2")}{borderGreen.ToString("X2")}{borderBlue.ToString("X2")}";
+
+            boxes[i] = new box
+            {
+                X = i * 100,
+                Y = 0,
+                BackgroundColour = backgroundColour,
+                BorderColour = borderColour,
+
+                Xinc = rnd.Next(1,5)
+            };
+        }
+
+        updateTicker.Elapsed += tick;
+        updateTicker.Start();
+    }
+
+    private void tick(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        foreach (var box in boxes)
+        {
+            if (box.IsMovingRight) box.X += box.Xinc; else box.X -= box.Xinc;
+
+            if (box.X > 1200) box.IsMovingRight = false;
+            if (box.X < 10) box.IsMovingRight = true;
+        }
+        // given this event handler is triggered by a system timer, and in a thread on the server which may not have anything to do with rendering...
+        // consider also, that Blazor can't detect this change (currently) as having anything to do with a UI change.
+        this.InvokeAsync(this.StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        updateTicker.Elapsed -= tick;
+        updateTicker.Stop();
+        updateTicker.Dispose();
+    }
+}

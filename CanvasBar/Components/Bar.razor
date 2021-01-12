@@ -1,0 +1,42 @@
+﻿@namespace CanvasBar
+
+@inject IJSRuntime JsRuntime
+<div class="text-center">
+    <div @ref="@referenceToHtmlElement">
+        @* render canvas in here! *@
+    </div>
+    <div class="d-inline">
+        @browserClickedResponseText
+    </div>
+</div>
+
+@code
+{
+    private ElementReference referenceToHtmlElement;
+
+    private string browserClickedResponseText;
+
+    [Parameter] public int Width { get; set; }
+    [Parameter] public int Height { get; set; }
+    [Parameter] public string TopColour { get; set; }
+    [Parameter] public string BottomColour { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            var dotNetComponentInstanceReference = DotNetObjectReference.Create(this);
+
+            // want to make call this when we have the element rendered - can't call the javascript side without the element in existence!
+            JsRuntime.InvokeVoidAsync("canvasBar.bar.register", dotNetComponentInstanceReference, referenceToHtmlElement, Width, Height, TopColour, BottomColour);
+        }
+    }
+
+    [JSInvokable("clicked")]
+    public void Clicked(int offsetX, int offsetY)
+    {
+        browserClickedResponseText = $"x:{offsetX}, y:{offsetY}";
+        this.InvokeAsync(this.StateHasChanged);
+    }
+}

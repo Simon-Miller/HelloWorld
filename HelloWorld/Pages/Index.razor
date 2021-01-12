@@ -19,6 +19,13 @@ Welcome to your new app.
 <TempConverter TemperatureChanged="@onTemperatureChanged" />
 <p>@temperature &deg;c</p>
 
+<div class="d-flex">
+    <CanvasBar.Bar Width="32" Height="200" TopColour="black" BottomColour="white" />
+    <CanvasBar.Bar Width="32" Height="200" TopColour="#f0f" BottomColour="#00f" />
+</div>
+
+<a href="/two-boxes-demo" >Two boxes demo</a>
+
 @code
 {
     private string role = "Admin"; // Admin
